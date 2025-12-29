@@ -1,4 +1,6 @@
-getgenv().AutoCombo = true
+-- AUTO COMBO TSB + GUI
+
+getgenv().AutoCombo = false
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -25,7 +27,7 @@ local function Block(state)
     VIM:SendMouseButtonEvent(0,0,1,state,game,0)
 end
 
--- tìm target
+-- TARGET
 local function getTarget()
     local char = lp.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
@@ -47,9 +49,13 @@ local function getTarget()
     return closest, dist
 end
 
--- MAIN
+-- MAIN LOOP
 RunService.RenderStepped:Connect(function()
-    if not getgenv().AutoCombo then return end
+    if not getgenv().AutoCombo then
+        Block(false)
+        return
+    end
+
     local char = lp.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 
@@ -61,17 +67,13 @@ RunService.RenderStepped:Connect(function()
     end
 
     local thrp = target.HumanoidRootPart
-
-    -- xoay mặt
     hrp.CFrame = CFrame.new(hrp.Position, thrp.Position)
 
-    -- DASH nếu hơi xa
     if dist > ATTACK_DIST and dist < DASH_DIST then
         Dash()
         return
     end
 
-    -- BLOCK khi đứng quá sát (anti phản đòn)
     if dist < 4 then
         Block(true)
         return
@@ -79,10 +81,52 @@ RunService.RenderStepped:Connect(function()
         Block(false)
     end
 
-    -- M1 combo
     if dist <= ATTACK_DIST then
         M1()
     end
 end)
 
-print("🔥 Auto Combo FULL Loaded")
+-- GUI
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "TSB_AutoCombo_GUI"
+
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 230, 0, 140)
+Frame.Position = UDim2.new(0.05, 0, 0.4, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Frame.Active = true
+Frame.Draggable = true
+
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0,12)
+
+local Title = Instance.new("TextLabel", Frame)
+Title.Size = UDim2.new(1,0,0,40)
+Title.Text = "👊 Auto Combo TSB"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.TextColor3 = Color3.new(1,1,1)
+Title.BackgroundTransparency = 1
+
+local Toggle = Instance.new("TextButton", Frame)
+Toggle.Size = UDim2.new(0.8,0,0,45)
+Toggle.Position = UDim2.new(0.1,0,0.5,0)
+Toggle.Text = "OFF"
+Toggle.Font = Enum.Font.GothamBold
+Toggle.TextSize = 16
+Toggle.TextColor3 = Color3.new(1,1,1)
+Toggle.BackgroundColor3 = Color3.fromRGB(160,0,0)
+
+Instance.new("UICorner", Toggle).CornerRadius = UDim.new(0,10)
+
+Toggle.MouseButton1Click:Connect(function()
+    getgenv().AutoCombo = not getgenv().AutoCombo
+    if getgenv().AutoCombo then
+        Toggle.Text = "ON"
+        Toggle.BackgroundColor3 = Color3.fromRGB(0,160,0)
+    else
+        Toggle.Text = "OFF"
+        Toggle.BackgroundColor3 = Color3.fromRGB(160,0,0)
+    end
+end)
+
+print("✅ Auto Combo TSB GUI Loaded")

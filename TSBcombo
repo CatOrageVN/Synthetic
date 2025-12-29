@@ -1,0 +1,57 @@
+getgenv().AutoCombo = true
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local VIM = game:GetService("VirtualInputManager")
+
+local lp = Players.LocalPlayer
+local ATTACK_DISTANCE = 10
+
+-- giả nhấn chuột trái (M1)
+local function click()
+    VIM:SendMouseButtonEvent(0,0,0,true,game,0)
+    task.wait(0.03)
+    VIM:SendMouseButtonEvent(0,0,0,false,game,0)
+end
+
+-- tìm mục tiêu gần nhất
+local function getTarget()
+    local char = lp.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+
+    local hrp = char.HumanoidRootPart
+    local closest, dist = nil, math.huge
+
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= lp and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            local hum = plr.Character:FindFirstChild("Humanoid")
+            if hum and hum.Health > 0 then
+                local d = (hrp.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+                if d < dist and d < ATTACK_DISTANCE then
+                    dist = d
+                    closest = plr.Character
+                end
+            end
+        end
+    end
+
+    return closest
+end
+
+RunService.RenderStepped:Connect(function()
+    if not getgenv().AutoCombo then return end
+    local char = lp.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+
+    local target = getTarget()
+    if target then
+        -- xoay mặt về target
+        char.HumanoidRootPart.CFrame =
+            CFrame.new(char.HumanoidRootPart.Position, target.HumanoidRootPart.Position)
+
+        -- spam M1
+        click()
+    end
+end)
+
+print("✅ Auto Combo TSB Loaded")

@@ -6,9 +6,9 @@ getgenv().AutoPiano = false
 local VIM = game:GetService("VirtualInputManager")
 
 -- tốc độ
-local SLOW = 1.5
-local FAST = 1
-local GAP  = 1 -- nghỉ khi gặp dấu ,
+local SLOW = 3.5
+local FAST = 2
+local GAP  = 3 -- nghỉ khi gặp dấu ,
 
 -- map số -> phím
 local KeyMap = {

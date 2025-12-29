@@ -1,0 +1,68 @@
+getgenv().AutoPiano = false
+
+local VIM = game:GetService("VirtualInputManager")
+
+-- NHỊP CHẬM – ĐỀU
+local DELAY = 0.5
+local PAUSE = 0.8
+
+-- map số → phím thật
+local Map = {
+    [1]="1",[2]="2",[3]="3",[4]="4",[5]="5",
+    [6]="6",[7]="7",[8]="8",[9]="9",[10]="0"
+}
+
+-- HUYỀN CHÍ CƠ (demo đoạn chính – chậm)
+local Song = {
+    5,6,8,9,8,6,5,p,
+    5,6,8,9,10,9,8,6,p,
+    5,6,8,9,8,6,5,p,
+    6,8,9,10,9,8,6,p,
+
+    5,6,8,9,8,6,5,
+    3,5,6,8,9,8,6,p,
+
+    8,9,10,9,8,6,5,
+    6,8,9,8,6,5,3
+}
+
+local function pressChar(char)
+    VIM:SendKeyEvent(true, char, false, game)
+    task.wait(0.05)
+    VIM:SendKeyEvent(false, char, false, game)
+end
+
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if getgenv().AutoPiano then
+            for _, v in ipairs(Song) do
+                if not getgenv().AutoPiano then break end
+                if v == p then
+                    task.wait(PAUSE)
+                else
+                    pressChar(Map[v])
+                    task.wait(DELAY)
+                end
+            end
+        end
+    end
+end)
+
+-- GUI ON / OFF
+local gui = Instance.new("ScreenGui", game.CoreGui)
+local btn = Instance.new("TextButton", gui)
+btn.Size = UDim2.new(0,170,0,50)
+btn.Position = UDim2.new(0.05,0,0.45,0)
+btn.Text = "DORAEMON : OFF"
+btn.BackgroundColor3 = Color3.fromRGB(180,0,0)
+btn.TextColor3 = Color3.new(1,1,1)
+btn.Font = Enum.Font.GothamBold
+btn.TextSize = 16
+Instance.new("UICorner", btn)
+
+btn.MouseButton1Click:Connect(function()
+    getgenv().AutoPiano = not getgenv().AutoPiano
+    btn.Text = getgenv().AutoPiano and "DORAEMON : ON" or "DORAEMON : OFF"
+    btn.BackgroundColor3 = getgenv().AutoPiano and Color3.fromRGB(0,180,0) or Color3.fromRGB(180,0,0)
+end)

@@ -1,0 +1,88 @@
+getgenv().AutoCombo = true
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local VIM = game:GetService("VirtualInputManager")
+local lp = Players.LocalPlayer
+
+local ATTACK_DIST = 9
+local DASH_DIST = 14
+
+-- INPUT
+local function M1()
+    VIM:SendMouseButtonEvent(0,0,0,true,game,0)
+    task.wait(0.05)
+    VIM:SendMouseButtonEvent(0,0,0,false,game,0)
+end
+
+local function Dash()
+    VIM:SendKeyEvent(true, Enum.KeyCode.Q, false, game)
+    task.wait(0.05)
+    VIM:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+end
+
+local function Block(state)
+    VIM:SendMouseButtonEvent(0,0,1,state,game,0)
+end
+
+-- tìm target
+local function getTarget()
+    local char = lp.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return nil end
+    local hrp = char.HumanoidRootPart
+
+    local closest, dist = nil, math.huge
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= lp and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            local hum = p.Character:FindFirstChild("Humanoid")
+            if hum and hum.Health > 0 then
+                local d = (hrp.Position - p.Character.HumanoidRootPart.Position).Magnitude
+                if d < dist and d < DASH_DIST then
+                    dist = d
+                    closest = p.Character
+                end
+            end
+        end
+    end
+    return closest, dist
+end
+
+-- MAIN
+RunService.RenderStepped:Connect(function()
+    if not getgenv().AutoCombo then return end
+    local char = lp.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+
+    local hrp = char.HumanoidRootPart
+    local target, dist = getTarget()
+    if not target then
+        Block(false)
+        return
+    end
+
+    local thrp = target.HumanoidRootPart
+
+    -- xoay mặt
+    hrp.CFrame = CFrame.new(hrp.Position, thrp.Position)
+
+    -- DASH nếu hơi xa
+    if dist > ATTACK_DIST and dist < DASH_DIST then
+        Dash()
+        return
+    end
+
+    -- BLOCK khi đứng quá sát (anti phản đòn)
+    if dist < 4 then
+        Block(true)
+        return
+    else
+        Block(false)
+    end
+
+    -- M1 combo
+    if dist <= ATTACK_DIST then
+        M1()
+    end
+end)
+
+print("🔥 Auto Combo FULL Loaded")

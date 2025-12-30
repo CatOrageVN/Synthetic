@@ -1,0 +1,63 @@
+-- AUTO PICK GOLD - LOST CURRENTS
+-- Made for learning / fun 😄
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+local autoPick = false
+
+-- ===== GUI =====
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.Name = "AutoPickGoldGUI"
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0, 20, 0.4, 0)
+frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+
+local button = Instance.new("TextButton", frame)
+button.Size = UDim2.new(1, -20, 0, 50)
+button.Position = UDim2.new(0, 10, 0, 25)
+button.Text = "AUTO PICK: OFF"
+button.TextColor3 = Color3.new(1,1,1)
+button.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+button.BorderSizePixel = 0
+
+button.MouseButton1Click:Connect(function()
+	autoPick = not autoPick
+	if autoPick then
+		button.Text = "AUTO PICK: ON"
+		button.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+	else
+		button.Text = "AUTO PICK: OFF"
+		button.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+	end
+end)
+
+-- ===== AUTO PICK LOOP =====
+task.spawn(function()
+	while task.wait(0.3) do
+		if autoPick and hrp then
+			for _, v in pairs(workspace:GetDescendants()) do
+				if v:IsA("Part") or v:IsA("MeshPart") then
+					-- Đổi tên nếu game dùng tên khác
+					if v.Name:lower():find("gold")
+					or v.Name:lower():find("coin")
+					or v.Name:lower():find("money") then
+						
+						pcall(function()
+							hrp.CFrame = v.CFrame + Vector3.new(0,2,0)
+							task.wait(0.1)
+						end)
+					end
+				end
+			end
+		end
+	end
+end)
